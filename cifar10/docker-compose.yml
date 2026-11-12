@@ -1,0 +1,22 @@
+services:
+  cog-model:
+    image: cifar-classifier-cog:latest
+    container_name: cifar-classifier-model
+    ports:
+      - "5003:5000"
+    restart: unless-stopped
+
+  web-ui:
+    image: cifar-web:v1
+    container_name: cifar-classifier-web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    environment:
+      - COG_URL=http://cog-model:5000/predictions
+      - PORT=8081
+    depends_on:
+      - cog-model
+    restart: unless-stopped

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garment Classifier | EE471 Week 7</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-icon">👕</div>
+            <h1>Garment Classifier</h1>
+            <p class="subtitle">Classify apparel items using FashionMNIST models with side-by-side HPO comparison</p>
+            
+            <!-- Container Health Status Badge -->
+            <div class="status-badge checking" id="statusBadge">
+                <span class="status-dot"></span>
+                <span class="status-text" id="statusText">Checking Inference Engine...</span>
+            </div>
+        </header>
+
+        <!-- Main Card -->
+        <main class="main-card">
+            <!-- Dropzone / Upload Area -->
+            <div class="dropzone" id="dropzone">
+                <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp,image/jpg" hidden>
+                
+                <div class="dropzone-content" id="dropzonePrompt">
+                    <svg class="upload-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <h3>Drag & drop a garment photo here</h3>
+                    <p class="support-text">or <span class="browse-link">browse from your computer</span></p>
+                    <span class="file-hint">Supports JPG, PNG, WEBP (Auto-preprocessed to 28×28 grayscale)</span>
+                </div>
+
+                <!-- Preview Area (Initially Hidden) -->
+                <div class="preview-area hidden" id="previewArea">
+                    <div class="image-wrapper">
+                        <img id="imagePreview" alt="Selected garment preview">
+                    </div>
+                    <div class="preview-info">
+                        <span class="file-name" id="fileName">garment.png</span>
+                        <span class="file-size" id="fileSize">-- KB</span>
+                        <button type="button" class="btn-remove" id="btnRemove">✕ Change Image</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="action-bar">
+                <button type="button" class="btn-classify" id="btnClassify" disabled>
+                    <span class="btn-icon">🔍</span>
+                    <span class="btn-label">Classify Garment</span>
+                </button>
+            </div>
+
+            <!-- Loading Spinner State -->
+            <div class="loading-state hidden" id="loadingState">
+                <div class="spinner"></div>
+                <p class="loading-title">Evaluating garment with neural network...</p>
+                <p class="loading-sub">Running inference across Baseline and HPO models</p>
+            </div>
+
+            <!-- Error Banner -->
+            <div class="error-banner hidden" id="errorBanner">
+                <span class="error-icon">⚠️</span>
+                <span class="error-message" id="errorMessage"></span>
+            </div>
+
+            <!-- Results Section (Task 6: Side-by-Side Comparison) -->
+            <section class="results-section hidden" id="resultsSection">
+                <div class="results-header">
+                    <h2>Model Comparison Results</h2>
+                    <div class="meta-tags">
+                        <span class="engine-badge" id="engineBadge">Cog Container</span>
+                        <span class="inference-time" id="inferenceTime">⚡ 0.05s</span>
+                    </div>
+                </div>
+
+                <div class="comparison-grid">
+                    <!-- Left Column: Baseline Model -->
+                    <div class="model-card baseline-card">
+                        <div class="model-badge baseline-badge">
+                            <span>Baseline Model</span>
+                            <small>SGD (lr=1e-3, 5 epochs, batch 64)</small>
+                        </div>
+                        <div class="top-match-box">
+                            <span class="match-label">Predicted Class</span>
+                            <div class="match-name" id="baselineTopClass">--</div>
+                            <div class="match-confidence" id="baselineConfidence">--% Confidence</div>
+                        </div>
+                        <div class="breakdown-container">
+                            <h4>Top Probability Breakdown</h4>
+                            <div class="breakdown-list" id="baselineBreakdown"></div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Optimized Model (HPO) -->
+                    <div class="model-card optimized-card">
+                        <div class="model-badge optimized-badge">
+                            <span>Optimized Model (HPO)</span>
+                            <small>Adam (lr=1e-3, 10 epochs, batch 32)</small>
+                        </div>
+                        <div class="top-match-box">
+                            <span class="match-label">Predicted Class</span>
+                            <div class="match-name" id="optimizedTopClass">--</div>
+                            <div class="match-confidence" id="optimizedConfidence">--% Confidence</div>
+                        </div>
+                        <div class="breakdown-container">
+                            <h4>Top Probability Breakdown</h4>
+                            <div class="breakdown-list" id="optimizedBreakdown"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- API Verification Footer (Helpful for Video Deliverable 3) -->
+        <footer class="app-footer">
+            <details class="api-details">
+                <summary>💡 API Verification & Container Instructions (For Video Deliverable)</summary>
+                <div class="api-info-content">
+                    <p><strong>Cog Inference Endpoint:</strong> <code>{{ cog_url }}</code></p>
+                    <p><strong>Live Container Logs:</strong> Run <code>docker logs -f &lt;container_name&gt;</code> in your terminal.</p>
+                    <p><strong>Postman / cURL Request:</strong></p>
+                    <pre><code>POST {{ cog_url }}
+Content-Type: application/json
+
+{
+  "input": {
+    "image": "https://raw.githubusercontent.com/zalandoresearch/fashion-mnist/master/doc/img/shirt.png"
+  }
+}</code></pre>
+                </div>
+            </details>
+            <p class="footer-note">Izmir Institute of Technology • EE 471 Modern Software Development Practices</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

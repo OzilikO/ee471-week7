@@ -1,0 +1,9 @@
+build:
+  gpu: false
+  python_version: "3.11"
+  run:
+    - "pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu"
+  python_packages:
+    - "pillow"
+    - "numpy"
+predict: "predict.py:Predictor"

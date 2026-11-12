@@ -1,0 +1,24 @@
+services:
+  # 1. Cog ML Inference Container
+  cog-model:
+    image: garment-classifier-cog:latest
+    container_name: garment-classifier-model
+    ports:
+      - "5002:5000"
+    restart: unless-stopped
+
+  # 2. Flask Web Application
+  web-ui:
+    image: garment-web:v1
+    container_name: garment-classifier-web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - COG_URL=http://cog-model:5000/predictions
+      - PORT=8080
+    depends_on:
+      - cog-model
+    restart: unless-stopped

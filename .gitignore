@@ -1,0 +1,21 @@
+# Python cache & virtualenvs
+__pycache__/
+*.py[cod]
+*$py.class
+*.env
+.venv/
+venv/
+
+# Datasets (auto-downloaded by PyTorch / torchvision)
+**/data/
+*.tar.gz
+*.gz
+*.pt
+!cifar_net.pt
+
+# Cog build artifacts
+.cog/
+
+# OS specific files
+.DS_Store
+Thumbs.db
