@@ -62,7 +62,7 @@ class Predictor(BasePredictor):
             print("[SETUP] Successfully loaded 'optimized_model.pth'!", flush=True)
         except Exception as e:
             print(f"[SETUP] Warning: Could not load optimized_model.pth ({e})", flush=True)
-        self.model_optimized.eval()
+        self.model_optimized.eval()###
 
         # 2. Load Baseline Model
         self.model_baseline = NeuralNetwork().to(self.device)
@@ -73,11 +73,11 @@ class Predictor(BasePredictor):
             print("[SETUP] Successfully loaded 'baseline_model.pth'!", flush=True)
         except Exception as e:
             print(f"[SETUP] Warning: Could not load baseline_model.pth ({e})", flush=True)
-        self.model_baseline.eval()
+        self.model_baseline.eval()###
 
         print("[SETUP] Garment Classifier Cog Predictor is ready!", flush=True)
 
-    def preprocess_image(self, image_path: Path) -> torch.Tensor:
+    def preprocess_image(self, image_path: Path) -> torch.Tensor:###
         """
         Preprocesses an uploaded image to match FashionMNIST specs:
         1. Convert to Grayscale ('L')
@@ -120,11 +120,11 @@ class Predictor(BasePredictor):
         with torch.no_grad():
             # Run optimized model
             opt_logits = self.model_optimized(tensor)
-            opt_probs = torch.softmax(opt_logits, dim=1).squeeze(0)
+            opt_probs = torch.softmax(opt_logits, dim=1).squeeze(0) ###
 
             # Run baseline model
             base_logits = self.model_baseline(tensor)
-            base_probs = torch.softmax(base_logits, dim=1).squeeze(0)
+            base_probs = torch.softmax(base_logits, dim=1).squeeze(0)###
 
         # Format probabilities
         opt_dict = {CLASSES[i]: float(opt_probs[i].item()) for i in range(len(CLASSES))}

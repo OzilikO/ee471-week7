@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 from torchvision import datasets
 from torchvision.transforms import v2
 ##
-
+#########################################################################
 ###2. çalışacak part
 # Download training data from open datasets.
 training_data = datasets.FashionMNIST(
@@ -37,11 +37,13 @@ for X, y in test_dataloader:
     print(f"Shape of y: {y.shape} {y.dtype}")
     break
 ##
-
+#########################################################################
 ###4. çalışacak part
 
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 print(f"Using {device} device")
+
+#########################################################################
 
 # Define model
 class NeuralNetwork(nn.Module):
@@ -64,6 +66,11 @@ class NeuralNetwork(nn.Module):
 model = NeuralNetwork().to(device)
 print(model)
 
+#########################################################################
+
+
+
+#########################################################################
 ###5. çalışacak part
 # Initialize the loss function and optimizer    
 loss_fn = nn.CrossEntropyLoss()
@@ -91,6 +98,8 @@ def train(dataloader, model, loss_fn, optimizer):
             loss, current = loss.item(), (batch + 1) * len(X)
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 ##
+
+#########################################################################
 
 ###7. çalışacak part
 # Test the model
